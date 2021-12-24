@@ -12,6 +12,7 @@ def create_button(screen, x, y, width, height, hover_color, default_color):
             return True
     else:
         pygame.draw.rect(screen, default_color, (x, y, width, height))
+    return False
 
 
 def quit_event():
