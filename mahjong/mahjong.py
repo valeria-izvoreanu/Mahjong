@@ -1,5 +1,4 @@
 import pygame
-import sys
 import constants as c
 import gui.start_window as start
 
@@ -12,12 +11,4 @@ res = (c.width, c.height)
 screen = pygame.display.set_mode(res)
 background = pygame.image.load("assets/background4.jpg").convert()
 
-while True:
-    start.start_menu(screen, background)
-    
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-
-    pygame.display.flip()
+start.start_menu(screen, background)

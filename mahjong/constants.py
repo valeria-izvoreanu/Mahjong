@@ -1,4 +1,3 @@
-import pygame.font
 
 width = 1070
 height = 720
@@ -14,5 +13,7 @@ green = (102, 205, 0)
 pink = (205, 91, 69)
 blue = (0, 205, 205)
 light_pink = (255, 127, 80)
+bright_pink = (220, 20, 60)
+light_blue = (152, 245, 255)
 
 font_type = 'Corbel'

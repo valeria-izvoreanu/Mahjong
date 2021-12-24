@@ -21,6 +21,7 @@ quit_button_y = c.height / 2
 
 def start_menu(screen, background):
     while True:
+        # create start button
         screen.blit(background, [0, 0])
         start_button = utils.create_button(screen, start_button_x, start_button_y, start_button_width,
                                            start_button_height, c.light_pink, c.pink)
@@ -28,18 +29,15 @@ def start_menu(screen, background):
             break
         screen.blit(start_button_text,
                     (start_button_x + start_button_width / 6 - 2, start_button_y + start_button_height / 6))
-
+        # create quit button
         quit_button = utils.create_button(screen, quit_button_x, quit_button_y, quit_button_width,
                                           quit_button_height, c.light_pink, c.pink)
-        if quit_button:
-            pygame.quit()
-            sys.exit()
         screen.blit(quit_button_text,
                     (quit_button_x + quit_button_width / 6, quit_button_y + quit_button_height / 6))
+        if quit_button:
+            utils.quit_window(screen, game_big_font, c.width / 4 + 25, c.height / 4 + 25, c.width / 4 + 225,
+                              c.height / 4 + 150)
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+        utils.quit_event()
 
         pygame.display.update()
