@@ -1,4 +1,3 @@
-
 width = 1070
 height = 720
 
@@ -15,5 +14,6 @@ blue = (0, 205, 205)
 light_pink = (255, 127, 80)
 bright_pink = (220, 20, 60)
 light_blue = (152, 245, 255)
+dark_pink = (139, 35, 35)
 
 font_type = 'Corbel'

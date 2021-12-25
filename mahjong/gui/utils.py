@@ -22,18 +22,30 @@ def quit_event():
             sys.exit()
 
 
+def create_text(screen, font, text, colour, x, y):
+    txt_render = font.render(text, True, colour)
+    screen.blit(txt_render, (x, y))
+
+
+def convert_millis(millis):
+    seconds = (millis / 1000) % 60
+    minutes = (millis / (1000 * 60)) % 60
+    hours = (millis / (1000 * 60 * 60)) % 24
+    return seconds, minutes, hours
+
+
 def quit_window(screen, font, x, y, height, width):
     yes_button_text = font.render("Yes", True, c.bright_pink)
     yes_button_width = 100
     yes_button_height = 60
-    yes_button_x = width*1.3 - yes_button_width / 2
-    yes_button_y = height*1.1 - yes_button_height * 2
+    yes_button_x = width * 1.3 - yes_button_width / 2
+    yes_button_y = height * 1.1 - yes_button_height * 2
 
     no_button_text = font.render("No", True, c.bright_pink)
     no_button_width = 100
     no_button_height = 60
-    no_button_x = width*1.95 - no_button_width / 2
-    no_button_y = height*1.1 - no_button_height * 2
+    no_button_x = width * 1.95 - no_button_width / 2
+    no_button_y = height * 1.1 - no_button_height * 2
 
     while True:
         pygame.draw.rect(screen, c.bright_pink,
@@ -41,7 +53,7 @@ def quit_window(screen, font, x, y, height, width):
         pygame.draw.rect(screen, c.blue, pygame.Rect(x, y, height, width), 3)
 
         text1 = font.render("Are you sure you", True, c.light_blue)
-        text2 = font.render("want to exit?", True, c.light_blue)
+        text2 = font.render("want to quit?", True, c.light_blue)
         screen.blit(text1, (x * 1.3, y * 1.5))
         screen.blit(text2, (x * 1.45, y * 1.5 + 45))
 

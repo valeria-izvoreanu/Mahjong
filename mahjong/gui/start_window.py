@@ -1,7 +1,7 @@
 import pygame
 import constants as c
 import gui.utils as utils
-import sys
+import gui.game_window as game
 
 pygame.init()
 game_big_font = pygame.font.SysFont(c.font_type, 45, True)
@@ -46,11 +46,10 @@ def draw_table_option(screen, text, x, y, width, height):
     pygame.draw.rect(screen, c.bright_pink,
                      pygame.Rect(x, y, width, height))
     pygame.draw.rect(screen, c.blue, pygame.Rect(x, y, width, height), 3)
-    option_name = game_big_font.render(text, True, c.light_blue)
     option_button = utils.create_button(screen, x, y + height + 20, width,
                                         50, c.light_pink, c.bright_pink)
     text_width = game_big_font.size(text)[0]
-    screen.blit(option_name, (x + width / 2 - text_width / 2, height + 265))
+    utils.create_text(screen, game_big_font, text, c.light_blue, x + width / 2 - text_width / 2, height + 265)
     return option_button
 
 
@@ -61,9 +60,8 @@ def draw_selected_square(screen, text, x, y, width, height):
     pygame.draw.rect(screen, c.light_pink,
                      pygame.Rect(x, y + height + 20, width, 50))
     pygame.draw.rect(screen, c.blue, pygame.Rect(x, y + height + 20, width, 50), 3)
-    option_name = game_big_font.render(text, True, c.blue)
     text_width = game_big_font.size(text)[0]
-    screen.blit(option_name, (x + width / 2 - text_width / 2, height + 265))
+    utils.create_text(screen, game_big_font, text, c.blue, x + width / 2 - text_width / 2, height + 265)
 
 
 def table_menu(screen, background):
@@ -117,7 +115,7 @@ def table_menu(screen, background):
                     (start_button_x + start_button_width / 6 - 2, start_button_y + start_button_height / 6))
         if start_button:
             if option != 0:
-                break
+                game.game_screen(screen, background, option)
 
         utils.quit_event()
         pygame.display.update()
