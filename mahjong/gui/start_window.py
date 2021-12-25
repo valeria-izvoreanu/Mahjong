@@ -19,18 +19,21 @@ def start_menu(screen, background):
     quit_button_height = 60
     quit_button_x = c.width / 2 - start_button_width / 2
     quit_button_y = c.height / 2
+    turtle_img = utils.load_image("assets/Turtle.png", 270, c.height / 3 + 50)
+    fortress_img = utils.load_image("assets/Fortress.png", 270, c.height / 3 + 50)
+    dragon_img = utils.load_image("assets/Dragon.png", 270, c.height / 3 + 50)
     while True:
         # create start button
         screen.blit(background, [0, 0])
         start_button = utils.create_button(screen, start_button_x, start_button_y, start_button_width,
-                                           start_button_height, c.light_pink, c.pink)
+                                           start_button_height, c.light_pink, c.bright_pink)
         if start_button:
-            table_menu(screen, background)
+            table_menu(screen, background, turtle_img, fortress_img, dragon_img)
         screen.blit(start_button_text,
                     (start_button_x + start_button_width / 6 - 2, start_button_y + start_button_height / 6))
         # create quit button
         quit_button = utils.create_button(screen, quit_button_x, quit_button_y, quit_button_width,
-                                          quit_button_height, c.light_pink, c.pink)
+                                          quit_button_height, c.light_pink, c.bright_pink)
         screen.blit(quit_button_text,
                     (quit_button_x + quit_button_width / 6, quit_button_y + quit_button_height / 6))
         if quit_button:
@@ -42,9 +45,10 @@ def start_menu(screen, background):
         pygame.display.update()
 
 
-def draw_table_option(screen, text, x, y, width, height):
+def draw_table_option(screen, text, x, y, width, height, img):
     pygame.draw.rect(screen, c.bright_pink,
                      pygame.Rect(x, y, width, height))
+    screen.blit(img, (x, y))
     pygame.draw.rect(screen, c.blue, pygame.Rect(x, y, width, height), 3)
     option_button = utils.create_button(screen, x, y + height + 20, width,
                                         50, c.light_pink, c.bright_pink)
@@ -53,9 +57,8 @@ def draw_table_option(screen, text, x, y, width, height):
     return option_button
 
 
-def draw_selected_square(screen, text, x, y, width, height):
-    pygame.draw.rect(screen, c.bright_pink,
-                     pygame.Rect(x, y, width, height))
+def draw_selected_square(screen, text, x, y, width, height, img):
+    screen.blit(img, (x, y))
     pygame.draw.rect(screen, c.blue, pygame.Rect(x, y, width, height), 3)
     pygame.draw.rect(screen, c.light_pink,
                      pygame.Rect(x, y + height + 20, width, 50))
@@ -64,7 +67,7 @@ def draw_selected_square(screen, text, x, y, width, height):
     utils.create_text(screen, game_big_font, text, c.blue, x + width / 2 - text_width / 2, height + 265)
 
 
-def table_menu(screen, background):
+def table_menu(screen, background,turtle_img, fortress_img, dragon_img):
     text = game_big_font.render("Choose Table Type:", True, c.bright_pink)
     option = 0
     option1 = False
@@ -81,33 +84,33 @@ def table_menu(screen, background):
         screen.blit(text, (c.width / 3, c.height / 6))
 
         if option1:
-            draw_selected_square(screen, "Turtle", c.width / 17, c.height / 3, 270, c.height / 3 + 50)
+            draw_selected_square(screen, "Turtle", c.width / 17, c.height / 3, 270, c.height / 3 + 50, turtle_img)
             option2 = draw_table_option(screen, "Fortress", c.width / 17 + 270 + 70, c.height / 3, 270,
-                                        c.height / 3 + 50)
+                                        c.height / 3 + 50, fortress_img)
             option3 = draw_table_option(screen, "Dragon", c.width / 17 + 270 * 2 + 70 * 2, c.height / 3, 270,
-                                        c.height / 3 + 50)
+                                        c.height / 3 + 50, dragon_img)
             option = 1
 
         if option2:
             draw_selected_square(screen, "Fortress", c.width / 17 + 270 + 70, c.height / 3, 270,
-                                 c.height / 3 + 50)
-            option1 = draw_table_option(screen, "Turtle", c.width / 17, c.height / 3, 270, c.height / 3 + 50)
+                                 c.height / 3 + 50, fortress_img)
+            option1 = draw_table_option(screen, "Turtle", c.width / 17, c.height / 3, 270, c.height / 3 + 50, turtle_img)
             option3 = draw_table_option(screen, "Dragon", c.width / 17 + 270 * 2 + 70 * 2, c.height / 3, 270,
-                                        c.height / 3 + 50)
+                                        c.height / 3 + 50, dragon_img)
             option = 2
         if option3:
             draw_selected_square(screen, "Dragon", c.width / 17 + 270 * 2 + 70 * 2, c.height / 3, 270,
-                                 c.height / 3 + 50)
-            option1 = draw_table_option(screen, "Turtle", c.width / 17, c.height / 3, 270, c.height / 3 + 50)
+                                 c.height / 3 + 50, dragon_img)
+            option1 = draw_table_option(screen, "Turtle", c.width / 17, c.height / 3, 270, c.height / 3 + 50, turtle_img)
             option2 = draw_table_option(screen, "Fortress", c.width / 17 + 270 + 70, c.height / 3, 270,
-                                        c.height / 3 + 50)
+                                        c.height / 3 + 50, fortress_img)
             option = 3
         if option == 0:
-            option1 = draw_table_option(screen, "Turtle", c.width / 17, c.height / 3, 270, c.height / 3 + 50)
+            option1 = draw_table_option(screen, "Turtle", c.width / 17, c.height / 3, 270, c.height / 3 + 50, turtle_img)
             option2 = draw_table_option(screen, "Fortress", c.width / 17 + 270 + 70, c.height / 3, 270,
-                                        c.height / 3 + 50)
+                                        c.height / 3 + 50, fortress_img)
             option3 = draw_table_option(screen, "Dragon", c.width / 17 + 270 * 2 + 70 * 2, c.height / 3, 270,
-                                        c.height / 3 + 50)
+                                        c.height / 3 + 50, dragon_img)
 
         start_button = utils.create_button(screen, start_button_x, start_button_y, start_button_width,
                                            start_button_height, c.light_pink, c.bright_pink)

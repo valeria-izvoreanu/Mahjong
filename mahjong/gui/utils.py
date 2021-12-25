@@ -27,11 +27,44 @@ def create_text(screen, font, text, colour, x, y):
     screen.blit(txt_render, (x, y))
 
 
+def load_image(address, width, height):
+    icon = pygame.image.load(address).convert_alpha()
+    icon = pygame.transform.scale(icon, (width, height))
+    return icon
+
+
 def convert_millis(millis):
     seconds = (millis / 1000) % 60
     minutes = (millis / (1000 * 60)) % 60
     hours = (millis / (1000 * 60 * 60)) % 24
     return seconds, minutes, hours
+
+
+def read_table_structure(table_type):
+    file1 = open('assets/' + table_type + '.txt', 'r')
+    lines = file1.readlines()
+    lines = [line.rstrip().split() for line in lines]
+    file1.close()
+
+    table = [[]]
+    layer = 0
+    for line in lines:
+        if len(line) > 0:
+            table[layer].append(line)
+        else:
+            table.append([])
+            layer += 1
+    return table
+
+
+def check_tile(table, x, y, z):
+    if z + 1 < len(table):
+        if table[z + 1][y][x] != '0':
+            return False
+    if x - 1 >= 0 and x + 1 < len(table[z][y]):
+        if table[z][y][x - 1] != '0' and table[z][y][x + 1] != '0':
+            return False
+    return True
 
 
 def quit_window(screen, font, x, y, height, width):
