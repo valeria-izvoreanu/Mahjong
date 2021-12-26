@@ -2,6 +2,8 @@ import pygame
 import constants as c
 import gui.utils as utils
 from random import randint
+import game.game as game
+import sys
 
 pygame.init()
 game_big_font = pygame.font.SysFont(c.font_type, 45, True)
@@ -15,6 +17,11 @@ def game_screen(screen, background, option):
     write_to_file_table(table_array)
 
     start_time = None
+    tile1 = False
+    tile2 = False
+
+    tile1_coord = [-1, -1, -1]
+    tile2_coord = [-1, -1, -1]
 
     while True:
         screen.blit(background, [0, 0])
@@ -28,9 +35,18 @@ def game_screen(screen, background, option):
         up_screen(screen, 20, 5, con_sec, con_min, con_hour)
         side_screen(screen)
 
-        draw_table(screen, tiles, table_array, x, y, tile_height, tile_width)
+        tile1, tile2, tile1_coord, tile2_coord = draw_table(screen, tiles, table_array, x, y, tile_height, tile_width,
+                                                            tile1, tile2, tile1_coord, tile2_coord)
 
-        utils.quit_event()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                tile1, tile2, tile1_coord, tile2_coord = click_event(table_array, x, y, tile_width, tile_height,
+                                                                     pos[0], pos[1], tile1, tile2, tile1_coord,
+                                                                     tile2_coord)
         pygame.display.update()
         clock.tick(60)
 
@@ -132,29 +148,90 @@ def write_to_file_table(table):
     file.close()
 
 
-def draw_table(screen, tiles, table_array, x, y, tile_height, tile_width):
+def hover_tile(screen, x, y, width, height, x_coord, y_coord, z_coord):
+    mouse = pygame.mouse.get_pos()
+    click = pygame.mouse.get_pressed()
+    if x + width > mouse[0] > x and y + height > mouse[1] > y:
+        pygame.draw.rect(screen, c.bright_pink, pygame.Rect(x, y, width, height), 2)
+        if click[0] == 1:
+            return True, x_coord, y_coord, z_coord
+    else:
+        pygame.draw.rect(screen, c.green, pygame.Rect(x, y, width, height), 2)
+    return False, -1, -1, -1
+
+
+def selected_tile(screen, x, y, width, height):
+    pygame.draw.rect(screen, c.bright_pink, pygame.Rect(x, y, width, height), 2)
+
+
+def click_event(table_array, x_abs, y_abs, tile_width, tile_height, x, y, tile1, tile2, tile1_coord,
+                tile2_coord):
+    x_coord = int((x - x_abs) // (tile_width + 5))
+    y_coord = int((y - y_abs) // (tile_height + 5))
+    z_coord = -1
+    count = len(table_array) - 1
+    for layer in reversed(table_array):
+        if layer[y_coord][x_coord] != '0':
+            z_coord = count
+            break
+        count -= 1
+    if z_coord != -1 and x_coord != -1 and y_coord != -1:
+        if game.check_tile(table_array, x_coord, y_coord, z_coord):
+            if not tile1:
+                tile1, tile1_coord[0], tile1_coord[1], tile1_coord[2] = True, x_coord, y_coord, z_coord
+            else:
+                tile2, tile2_coord[0], tile2_coord[1], tile2_coord[2] = True, x_coord, y_coord, z_coord
+                if tile1_coord == tile2_coord:
+                    tile2 = False
+                    tile2_coord = [-1, -1, -1]
+                    tile1 = False
+                    tile1_coord = [-1, -1, -1]
+                if tile2:
+                    if game.check_if_tile_equal(table_array, tile1_coord, tile2_coord):
+                        tile1, tile2, tile1_coord, tile2_coord = game.update_array(table_array, tile1_coord,
+                                                                                   tile2_coord)
+                    else:
+                        tile2 = False
+                        tile1_coord = list(tile2_coord)
+                        tile2_coord = [-1, -1, -1]
+    else:
+        tile1 = False
+        tile1_coord = [-1, -1, -1]
+    return tile1, tile2, tile1_coord, tile2_coord
+
+
+def draw_table(screen, tiles, table_array, x, y, tile_height, tile_width, tile1, tile2, tile1_coord, tile2_coord):
+    x_layer = x
+    y_layer = y
     x_abs = x
     y_abs = y
     color = c.green
     black_tile = tiles["black"]
     pygame.Surface.set_alpha(black_tile, 100)
+    x_tile1 = x_abs - 5 * tile1_coord[2] + (tile_width + 5) * tile1_coord[0]
+    y_tile1 = y_abs - 5 * tile1_coord[2] + (5 + tile_height) * tile1_coord[1]
+    x_tile2 = x_abs - 5 * tile2_coord[2] + (tile_width + 5) * tile2_coord[0]
+    y_tile2 = y_abs - 5 * tile2_coord[2] + (5 + tile_height) * tile2_coord[1]
     for z_coord, layer in enumerate(table_array):
         for y_coord, line in enumerate(layer):
             for x_coord, elem in enumerate(line):
                 if elem != '0':
                     tile = tiles["t" + elem]
                     screen.blit(tile, (x, y))
-                    if not utils.check_tile(table_array, x_coord, y_coord, z_coord):
+                    if not game.check_tile(table_array, x_coord, y_coord, z_coord):
                         screen.blit(black_tile, (x, y))
-                    pygame.draw.rect(screen, color, pygame.Rect(x, y, tile_width, tile_height), 2)
+                        pygame.draw.rect(screen, color, pygame.Rect(x, y, tile_width, tile_height), 2)
+                    else:
+                        hover_tile(screen, x, y, tile_width, tile_height, x_coord, y_coord, z_coord)
                 x += tile_width + 5
-            x = x_abs
+            x = x_layer
             y += tile_height + 5
-        x_abs -= 5
-        x = x_abs
-        y_abs -= 5
-        y = y_abs
-        # if color == c.green:
-        #    color = c.blue
-        # else:
-        #    color = c.green
+        x_layer -= 5
+        x = x_layer
+        y_layer -= 5
+        y = y_layer
+    if tile1:
+        selected_tile(screen, x_tile1, y_tile1, tile_width, tile_height)
+    if tile2:
+        selected_tile(screen, x_tile2, y_tile2, tile_width, tile_height)
+    return tile1, tile2, tile1_coord, tile2_coord

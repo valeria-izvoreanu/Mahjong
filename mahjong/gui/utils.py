@@ -57,16 +57,6 @@ def read_table_structure(table_type):
     return table
 
 
-def check_tile(table, x, y, z):
-    if z + 1 < len(table):
-        if table[z + 1][y][x] != '0':
-            return False
-    if x - 1 >= 0 and x + 1 < len(table[z][y]):
-        if table[z][y][x - 1] != '0' and table[z][y][x + 1] != '0':
-            return False
-    return True
-
-
 def quit_window(screen, font, x, y, height, width):
     yes_button_text = font.render("Yes", True, c.bright_pink)
     yes_button_width = 100
