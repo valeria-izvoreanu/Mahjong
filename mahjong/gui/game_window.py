@@ -9,6 +9,8 @@ pygame.init()
 game_big_font = pygame.font.SysFont(c.font_type, 45, True)
 clock = pygame.time.Clock()
 
+start_time = None
+
 
 def game_screen(screen, background, option):
     x, y, tile_width, tile_height, table_type = get_table_type(option)
@@ -16,23 +18,22 @@ def game_screen(screen, background, option):
     table_array = get_tiles_table(utils.read_table_structure(table_type))
     write_to_file_table(table_array)
 
-    start_time = None
     tile1 = False
     tile2 = False
 
     tile1_coord = [-1, -1, -1]
     tile2_coord = [-1, -1, -1]
 
+    tile_count, matches_count = game.calculate_tiles_and_matches(table_array)
+
     while True:
         screen.blit(background, [0, 0])
-        # if first tile selected
         if start_time:
             time_since_fst_move = pygame.time.get_ticks() - start_time
         else:
-            start_time = pygame.time.get_ticks()
             time_since_fst_move = 0
         con_sec, con_min, con_hour = utils.convert_millis(int(time_since_fst_move))
-        up_screen(screen, 20, 5, con_sec, con_min, con_hour)
+        up_screen(screen, tile_count, matches_count, con_sec, con_min, con_hour)
         side_screen(screen)
 
         tile1, tile2, tile1_coord, tile2_coord = draw_table(screen, tiles, table_array, x, y, tile_height, tile_width,
@@ -44,9 +45,13 @@ def game_screen(screen, background, option):
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                tile1, tile2, tile1_coord, tile2_coord = click_event(table_array, x, y, tile_width, tile_height,
-                                                                     pos[0], pos[1], tile1, tile2, tile1_coord,
-                                                                     tile2_coord)
+                tile1, tile2, tile1_coord, tile2_coord, tile_count, matches_count = click_event(screen, table_array, x,
+                                                                                                y, tile_width,
+                                                                                                tile_height,
+                                                                                                pos[0], pos[1], tile1,
+                                                                                                tile2, tile1_coord,
+                                                                                                tile2_coord, tile_count,
+                                                                                                matches_count)
         pygame.display.update()
         clock.tick(60)
 
@@ -77,11 +82,8 @@ def side_screen(screen):
     sound_btn = make_side_button(screen, "assets/sound_icon.png", c.width - 200 + 20, 240, 70, 70)
     undo_btn = make_side_button(screen, "assets/undo_icon.png", c.width - 200 + 110, 240, 70, 70)
 
-    quit_btn = utils.create_button(screen, c.width - 155, 420, 110, 60, c.light_pink, c.dark_pink)
+    utils.create_button(screen, c.width - 155, 420, 110, 60, c.light_pink, c.dark_pink)
     utils.create_text(screen, game_big_font, "Quit", c.white, c.width - 155 + 10, 420 + 10)
-    if quit_btn:
-        utils.quit_window(screen, game_big_font, c.width / 4 + 25, c.height / 4 + 25, c.width / 4 + 225,
-                          c.height / 4 + 150)
 
 
 def get_table_type(option):
@@ -164,8 +166,27 @@ def selected_tile(screen, x, y, width, height):
     pygame.draw.rect(screen, c.bright_pink, pygame.Rect(x, y, width, height), 2)
 
 
-def click_event(table_array, x_abs, y_abs, tile_width, tile_height, x, y, tile1, tile2, tile1_coord,
-                tile2_coord):
+def click_event(screen, table_array, x_abs, y_abs, tile_width, tile_height, x, y, tile1, tile2, tile1_coord,
+                tile2_coord, tile_count, matches_count):
+    if x < (c.width - 200) and y > 60:
+        tile1, tile2, tile1_coord, tile2_coord, tile_count, matches_count = click_table_event(table_array, x_abs, y_abs,
+                                                                                              tile_width, tile_height,
+                                                                                              x, y, tile1, tile2,
+                                                                                              tile1_coord,
+                                                                                              tile2_coord, tile_count,
+                                                                                              matches_count)
+    elif y > 60:
+        if c.width - 155 < x < c.width - 155 + 110 and 420 < y < 480:
+            utils.quit_window(screen, game_big_font, c.width / 4 + 25, c.height / 4 + 25, c.width / 4 + 225,
+                              c.height / 4 + 150)
+    return tile1, tile2, tile1_coord, tile2_coord, tile_count, matches_count
+
+
+def click_table_event(table_array, x_abs, y_abs, tile_width, tile_height, x, y, tile1, tile2, tile1_coord,
+                      tile2_coord, tile_count, matches_count):
+    global start_time
+    if not start_time:
+        start_time = pygame.time.get_ticks()
     x_coord = int((x - x_abs) // (tile_width + 5))
     y_coord = int((y - y_abs) // (tile_height + 5))
     z_coord = -1
@@ -188,8 +209,8 @@ def click_event(table_array, x_abs, y_abs, tile_width, tile_height, x, y, tile1,
                     tile1_coord = [-1, -1, -1]
                 if tile2:
                     if game.check_if_tile_equal(table_array, tile1_coord, tile2_coord):
-                        tile1, tile2, tile1_coord, tile2_coord = game.update_array(table_array, tile1_coord,
-                                                                                   tile2_coord)
+                        tile1, tile2, tile1_coord, tile2_coord, tile_count, matches_count = game.update_array(
+                            table_array, tile1_coord, tile2_coord)
                     else:
                         tile2 = False
                         tile1_coord = list(tile2_coord)
@@ -197,7 +218,7 @@ def click_event(table_array, x_abs, y_abs, tile_width, tile_height, x, y, tile1,
     else:
         tile1 = False
         tile1_coord = [-1, -1, -1]
-    return tile1, tile2, tile1_coord, tile2_coord
+    return tile1, tile2, tile1_coord, tile2_coord, tile_count, matches_count
 
 
 def draw_table(screen, tiles, table_array, x, y, tile_height, tile_width, tile1, tile2, tile1_coord, tile2_coord):
