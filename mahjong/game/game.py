@@ -9,7 +9,13 @@ def check_tile(table, x, y, z):
 
 
 def check_if_tile_equal(table, tile1_coord, tile2_coord):
-    if table[tile1_coord[2]][tile1_coord[1]][tile1_coord[0]] == table[tile2_coord[2]][tile2_coord[1]][tile2_coord[0]]:
+    tile1 = table[tile1_coord[2]][tile1_coord[1]][tile1_coord[0]]
+    tile2 = table[tile2_coord[2]][tile2_coord[1]][tile2_coord[0]]
+    if tile1 == tile2:
+        return True
+    if 35 <= int(tile1) <= 38 and 35 <= int(tile2) <= 38:
+        return True
+    if 39 <= int(tile1) <= 42 and 39 <= int(tile2) <= 42:
         return True
     return False
 
@@ -30,7 +36,7 @@ def calculate_tiles_and_matches(table):
                 if elem != '0':
                     tiles_count += 1
                     if check_tile(table, x, y, z):
-                        matches[int(elem)-1] += 1
+                        matches[int(elem) - 1] += 1
     matches_count = 0
     for i in matches:
         if i > 1:

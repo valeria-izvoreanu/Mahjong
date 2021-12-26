@@ -6,6 +6,7 @@ pygame.init()
 pygame.display.set_caption('Mahjong')
 gameIcon = pygame.image.load("assets/logo.png")
 pygame.display.set_icon(gameIcon)
+pygame.mixer.music.load("assets/music.wav")
 
 res = (c.width, c.height)
 screen = pygame.display.set_mode(res)

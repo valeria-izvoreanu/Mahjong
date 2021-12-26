@@ -10,6 +10,7 @@ game_big_font = pygame.font.SysFont(c.font_type, 45, True)
 clock = pygame.time.Clock()
 
 start_time = None
+sound = "sound"
 
 
 def game_screen(screen, background, option):
@@ -69,18 +70,17 @@ def up_screen(screen, tiles_nr, matches_nr, sec, minute, hour):
 
 def make_side_button(screen, address, x, y, width, height):
     icon = utils.load_image(address, width - 10, height - 10)
-    button = utils.create_button(screen, x, y, width, height, c.light_pink, c.dark_pink)
+    utils.create_button(screen, x, y, width, height, c.light_pink, c.dark_pink)
     screen.blit(icon, [x + 5, y + 5])
-    return button
 
 
 def side_screen(screen):
     pygame.draw.rect(screen, c.bright_pink,
                      pygame.Rect(c.width - 200, 60, 200, c.height))
-    hint_btn = make_side_button(screen, "assets/hint_icon.png", c.width - 200 + 20, 150, 70, 70)
-    help_btn = make_side_button(screen, "assets/help_icon.png", c.width - 200 + 110, 150, 70, 70)
-    sound_btn = make_side_button(screen, "assets/sound_icon.png", c.width - 200 + 20, 240, 70, 70)
-    undo_btn = make_side_button(screen, "assets/undo_icon.png", c.width - 200 + 110, 240, 70, 70)
+    make_side_button(screen, "assets/hint_icon.png", c.width - 200 + 20, 150, 70, 70)
+    make_side_button(screen, "assets/help_icon.png", c.width - 200 + 110, 150, 70, 70)
+    make_side_button(screen, "assets/" + sound + "_icon.png", c.width - 200 + 20, 240, 70, 70)
+    make_side_button(screen, "assets/undo_icon.png", c.width - 200 + 110, 240, 70, 70)
 
     utils.create_button(screen, c.width - 155, 420, 110, 60, c.light_pink, c.dark_pink)
     utils.create_text(screen, game_big_font, "Quit", c.white, c.width - 155 + 10, 420 + 10)
@@ -179,7 +179,43 @@ def click_event(screen, table_array, x_abs, y_abs, tile_width, tile_height, x, y
         if c.width - 155 < x < c.width - 155 + 110 and 420 < y < 480:
             utils.quit_window(screen, game_big_font, c.width / 4 + 25, c.height / 4 + 25, c.width / 4 + 225,
                               c.height / 4 + 150)
+        if c.width - 200 + 20 < x < c.width - 200 + 90 and 240 < y < 310:
+            handle_music()
+        if c.width - 200 + 110 < x < c.width - 200 + 180 and 150 < y < 220:
+            show_help_menu(screen, (c.width - 200) / 2 - (c.width / 1.9 + 225) / 2,
+                           (c.height - 60) / 4 - 55, c.width / 1.9 + 225,
+                           c.height / 1.9 + 150)
     return tile1, tile2, tile1_coord, tile2_coord, tile_count, matches_count
+
+
+def handle_music():
+    global sound
+    if sound == "mute":
+        pygame.mixer.music.unpause()
+        sound = "sound"
+    else:
+        pygame.mixer.music.pause()
+        sound = "mute"
+
+
+def show_help_menu(screen, x, y, width, height):
+    close_button_text = game_big_font.render("Close", True, c.white)
+    close_button_width = 140
+    close_button_height = 60
+    close_button_x = x + width / 2 - close_button_width/2
+    close_button_y = y + height / 1.17
+    img = utils.load_image("assets/help.png", width, height)
+    while True:
+        pygame.draw.rect(screen, c.blue, pygame.Rect(x, y, width, height), 5)
+        screen.blit(img, (x, y))
+        close_button = utils.create_button(screen, close_button_x, close_button_y, close_button_width,
+                                           close_button_height, c.light_pink, c.blue)
+        screen.blit(close_button_text,
+                    (close_button_x + close_button_width / 6 - 2, close_button_y + close_button_height / 6))
+        if close_button:
+            return
+        utils.quit_event()
+        pygame.display.update()
 
 
 def click_table_event(table_array, x_abs, y_abs, tile_width, tile_height, x, y, tile1, tile2, tile1_coord,

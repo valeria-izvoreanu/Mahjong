@@ -22,6 +22,7 @@ def start_menu(screen, background):
     turtle_img = utils.load_image("assets/Turtle.png", 270, c.height / 3 + 50)
     fortress_img = utils.load_image("assets/Fortress.png", 270, c.height / 3 + 50)
     dragon_img = utils.load_image("assets/Dragon.png", 270, c.height / 3 + 50)
+    pygame.mixer.music.play(-1)
     while True:
         # create start button
         screen.blit(background, [0, 0])
