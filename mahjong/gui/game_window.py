@@ -12,49 +12,71 @@ clock = pygame.time.Clock()
 start_time = None
 sound = "sound"
 
+matches = []
+hint_nr = 0
+hint = None
 
-def game_screen(screen, background, option):
+moves = []
+
+
+def init_game(screen, background, option):
+    global matches, moves, start_time, sound
+    moves = []
+    start_time = None
+    sound = "sound"
     x, y, tile_width, tile_height, table_type = get_table_type(option)
     tiles = get_tiles(tile_width, tile_height)
     table_array = get_tiles_table(utils.read_table_structure(table_type))
-    write_to_file_table(table_array)
+    tile_count, matches = game.calculate_tiles_and_matches(table_array)
+    game_screen(screen, background, x, y, tile_width, tile_height, table_type, tiles, table_array, tile_count)
 
+
+def game_screen(screen, background, x, y, tile_width, tile_height, table_type, tiles, table_array, tile_count):
     tile1 = False
     tile2 = False
 
     tile1_coord = [-1, -1, -1]
     tile2_coord = [-1, -1, -1]
 
-    tile_count, matches_count = game.calculate_tiles_and_matches(table_array)
+    global matches
+    time_since_fst_move = 0
 
     while True:
         screen.blit(background, [0, 0])
-        if start_time:
-            time_since_fst_move = pygame.time.get_ticks() - start_time
-        else:
-            time_since_fst_move = 0
-        con_sec, con_min, con_hour = utils.convert_millis(int(time_since_fst_move))
-        up_screen(screen, tile_count, matches_count, con_sec, con_min, con_hour)
-        side_screen(screen)
+        if tile_count > 0 and len(matches) > 0:
+            if start_time is not None:
+                time_since_fst_move = pygame.time.get_ticks() - start_time
+            else:
+                time_since_fst_move = 0
+            con_sec, con_min, con_hour = utils.convert_millis(int(time_since_fst_move))
+            up_screen(screen, tile_count, len(matches), con_sec, con_min, con_hour)
+            side_screen(screen)
 
-        tile1, tile2, tile1_coord, tile2_coord = draw_table(screen, tiles, table_array, x, y, tile_height, tile_width,
-                                                            tile1, tile2, tile1_coord, tile2_coord)
+            tile1, tile2, tile1_coord, tile2_coord = draw_table(screen, tiles, table_array, x, y, tile_height,
+                                                                tile_width,
+                                                                tile1, tile2, tile1_coord, tile2_coord)
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                pos = pygame.mouse.get_pos()
-                tile1, tile2, tile1_coord, tile2_coord, tile_count, matches_count = click_event(screen, table_array, x,
-                                                                                                y, tile_width,
-                                                                                                tile_height,
-                                                                                                pos[0], pos[1], tile1,
-                                                                                                tile2, tile1_coord,
-                                                                                                tile2_coord, tile_count,
-                                                                                                matches_count)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    pos = pygame.mouse.get_pos()
+                    tile1, tile2, tile1_coord, tile2_coord, tile_count = click_event(screen, table_array, x,
+                                                                                     y, tile_width,
+                                                                                     tile_height,
+                                                                                     pos[0], pos[1], tile1,
+                                                                                     tile2, tile1_coord,
+                                                                                     tile2_coord, tile_count)
+            clock.tick(60)
+        elif tile_count == 0:
+            utils.winning_screen(screen, background, time_since_fst_move, table_type,
+                                 c.width / 2 - (c.width / 1.9 + 225) / 2,
+                                 c.height / 4 - 55, c.width / 1.9 + 225,
+                                 c.height / 1.9 + 150, game_big_font)
+        elif len(matches) == 0:
+            utils.loosing_screen(screen, background)
         pygame.display.update()
-        clock.tick(60)
 
 
 def up_screen(screen, tiles_nr, matches_nr, sec, minute, hour):
@@ -162,30 +184,60 @@ def hover_tile(screen, x, y, width, height, x_coord, y_coord, z_coord):
     return False, -1, -1, -1
 
 
-def selected_tile(screen, x, y, width, height):
-    pygame.draw.rect(screen, c.bright_pink, pygame.Rect(x, y, width, height), 2)
+def selected_tile(screen, x, y, width, height, color):
+    pygame.draw.rect(screen, color, pygame.Rect(x, y, width, height), 2)
 
 
 def click_event(screen, table_array, x_abs, y_abs, tile_width, tile_height, x, y, tile1, tile2, tile1_coord,
-                tile2_coord, tile_count, matches_count):
+                tile2_coord, tile_count):
+    global hint
     if x < (c.width - 200) and y > 60:
-        tile1, tile2, tile1_coord, tile2_coord, tile_count, matches_count = click_table_event(table_array, x_abs, y_abs,
-                                                                                              tile_width, tile_height,
-                                                                                              x, y, tile1, tile2,
-                                                                                              tile1_coord,
-                                                                                              tile2_coord, tile_count,
-                                                                                              matches_count)
+        tile1, tile2, tile1_coord, tile2_coord, tile_count = click_table_event(table_array, x_abs, y_abs,
+                                                                               tile_width, tile_height,
+                                                                               x, y, tile1, tile2,
+                                                                               tile1_coord,
+                                                                               tile2_coord, tile_count)
+        hint = None
     elif y > 60:
         if c.width - 155 < x < c.width - 155 + 110 and 420 < y < 480:
             utils.quit_window(screen, game_big_font, c.width / 4 + 25, c.height / 4 + 25, c.width / 4 + 225,
                               c.height / 4 + 150)
+            hint = None
         if c.width - 200 + 20 < x < c.width - 200 + 90 and 240 < y < 310:
             handle_music()
+            hint = None
         if c.width - 200 + 110 < x < c.width - 200 + 180 and 150 < y < 220:
             show_help_menu(screen, (c.width - 200) / 2 - (c.width / 1.9 + 225) / 2,
                            (c.height - 60) / 4 - 55, c.width / 1.9 + 225,
                            c.height / 1.9 + 150)
-    return tile1, tile2, tile1_coord, tile2_coord, tile_count, matches_count
+            hint = None
+        if c.width - 200 + 20 < x < c.width - 200 + 90 and 150 < y < 220:
+            hint = get_hint()
+        if c.width - 200 + 110 < x < c.width - 200 + 180 and 240 < y < 310:
+            global matches
+            tile1, tile2, tile1_coord, tile2_coord, tile_count, matches = undo_move(table_array, tile1, tile2,
+                                                                                    tile1_coord, tile2_coord,
+                                                                                    tile_count)
+
+    return tile1, tile2, tile1_coord, tile2_coord, tile_count
+
+
+def undo_move(table_array, tile1, tile2, tile1_coord, tile2_coord, tile_count):
+    global moves, matches
+    if len(moves) > 0:
+        last_move = moves.pop()
+        return game.update_array(table_array, last_move[0], last_move[1], last_move[0][3], last_move[1][3])
+    return tile1, tile2, tile1_coord, tile2_coord, tile_count, matches
+
+
+def get_hint():
+    global hint_nr, matches
+    if hint_nr < len(matches):
+        hint_nr += 1
+        return matches[hint_nr - 1]
+    else:
+        hint_nr = 0
+        return matches[hint_nr]
 
 
 def handle_music():
@@ -202,7 +254,7 @@ def show_help_menu(screen, x, y, width, height):
     close_button_text = game_big_font.render("Close", True, c.white)
     close_button_width = 140
     close_button_height = 60
-    close_button_x = x + width / 2 - close_button_width/2
+    close_button_x = x + width / 2 - close_button_width / 2
     close_button_y = y + height / 1.17
     img = utils.load_image("assets/help.png", width, height)
     while True:
@@ -219,8 +271,8 @@ def show_help_menu(screen, x, y, width, height):
 
 
 def click_table_event(table_array, x_abs, y_abs, tile_width, tile_height, x, y, tile1, tile2, tile1_coord,
-                      tile2_coord, tile_count, matches_count):
-    global start_time
+                      tile2_coord, tile_count):
+    global start_time, matches
     if not start_time:
         start_time = pygame.time.get_ticks()
     x_coord = int((x - x_abs) // (tile_width + 5))
@@ -245,7 +297,12 @@ def click_table_event(table_array, x_abs, y_abs, tile_width, tile_height, x, y, 
                     tile1_coord = [-1, -1, -1]
                 if tile2:
                     if game.check_if_tile_equal(table_array, tile1_coord, tile2_coord):
-                        tile1, tile2, tile1_coord, tile2_coord, tile_count, matches_count = game.update_array(
+                        tile1_coord.append(table_array[tile1_coord[2]][tile1_coord[1]][tile1_coord[0]])
+                        tile2_coord.append(table_array[tile2_coord[2]][tile2_coord[1]][tile2_coord[0]])
+                        moves.append([list(tile1_coord), list(tile2_coord)])
+                        tile1_coord.pop()
+                        tile2_coord.pop()
+                        tile1, tile2, tile1_coord, tile2_coord, tile_count, matches = game.update_array(
                             table_array, tile1_coord, tile2_coord)
                     else:
                         tile2 = False
@@ -254,7 +311,18 @@ def click_table_event(table_array, x_abs, y_abs, tile_width, tile_height, x, y, 
     else:
         tile1 = False
         tile1_coord = [-1, -1, -1]
-    return tile1, tile2, tile1_coord, tile2_coord, tile_count, matches_count
+    return tile1, tile2, tile1_coord, tile2_coord, tile_count
+
+
+def get_tile_coord(x_abs, y_abs, tile_width, tile_height, tile_coord):
+    x_tile = x_abs - 5 * tile_coord[2] + (tile_width + 5) * tile_coord[0]
+    y_tile = y_abs - 5 * tile_coord[2] + (5 + tile_height) * tile_coord[1]
+    return x_tile, y_tile
+
+
+def draw_tile_square(screen, x_abs, y_abs, tile_width, tile_height, tile_coord, color):
+    x_tile, y_tile = get_tile_coord(x_abs, y_abs, tile_width, tile_height, tile_coord)
+    selected_tile(screen, x_tile, y_tile, tile_width, tile_height, color)
 
 
 def draw_table(screen, tiles, table_array, x, y, tile_height, tile_width, tile1, tile2, tile1_coord, tile2_coord):
@@ -265,10 +333,6 @@ def draw_table(screen, tiles, table_array, x, y, tile_height, tile_width, tile1,
     color = c.green
     black_tile = tiles["black"]
     pygame.Surface.set_alpha(black_tile, 100)
-    x_tile1 = x_abs - 5 * tile1_coord[2] + (tile_width + 5) * tile1_coord[0]
-    y_tile1 = y_abs - 5 * tile1_coord[2] + (5 + tile_height) * tile1_coord[1]
-    x_tile2 = x_abs - 5 * tile2_coord[2] + (tile_width + 5) * tile2_coord[0]
-    y_tile2 = y_abs - 5 * tile2_coord[2] + (5 + tile_height) * tile2_coord[1]
     for z_coord, layer in enumerate(table_array):
         for y_coord, line in enumerate(layer):
             for x_coord, elem in enumerate(line):
@@ -288,7 +352,11 @@ def draw_table(screen, tiles, table_array, x, y, tile_height, tile_width, tile1,
         y_layer -= 5
         y = y_layer
     if tile1:
-        selected_tile(screen, x_tile1, y_tile1, tile_width, tile_height)
+        draw_tile_square(screen, x_abs, y_abs, tile_width, tile_height, tile1_coord, c.bright_pink)
     if tile2:
-        selected_tile(screen, x_tile2, y_tile2, tile_width, tile_height)
+        draw_tile_square(screen, x_abs, y_abs, tile_width, tile_height, tile2_coord, c.bright_pink)
+    global hint
+    if hint is not None:
+        draw_tile_square(screen, x_abs, y_abs, tile_width, tile_height, hint[0], c.dark_blue)
+        draw_tile_square(screen, x_abs, y_abs, tile_width, tile_height, hint[1], c.dark_blue)
     return tile1, tile2, tile1_coord, tile2_coord

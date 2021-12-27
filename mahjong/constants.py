@@ -15,5 +15,6 @@ light_pink = (255, 127, 80)
 bright_pink = (220, 20, 60)
 light_blue = (152, 245, 255)
 dark_pink = (139, 35, 35)
+dark_blue = (0, 0, 139)
 
 font_type = 'Corbel'

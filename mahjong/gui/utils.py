@@ -1,6 +1,7 @@
 import pygame
 import constants as c
 import sys
+import gui.start_window as start
 
 
 def create_button(screen, x, y, width, height, hover_color, default_color):
@@ -97,3 +98,65 @@ def quit_window(screen, font, x, y, height, width):
 
         quit_event()
         pygame.display.update()
+
+
+def winning_screen(screen, background, time_since_fst_move, table_type, x, y, height, width, font):
+    new_button_text = font.render("New Game", True, c.bright_pink)
+    new_button_width = 300
+    new_button_height = 60
+    new_button_x = x + 100
+    new_button_y = y + 400
+    # new_button_x = x+ width * 1.3 - new_button_width / 2
+    # new_button_y = y + height * 1.1 - new_button_height * 2
+
+    no_button_text = font.render("Exit", True, c.bright_pink)
+    no_button_width = 120
+    no_button_height = 60
+    no_button_x = x + 500
+    no_button_y = y + 400
+    while True:
+        screen.blit(background, [0, 0])
+        pygame.draw.rect(screen, c.bright_pink,
+                         pygame.Rect(x, y, height, width))
+        pygame.draw.rect(screen, c.blue, pygame.Rect(x, y, height, width), 3)
+
+        sec, minute, hour = convert_millis(int(time_since_fst_move))
+
+        text = "Congratulations!"
+        text_width = font.size(text)[0]
+        create_text(screen, font, text, c.light_blue, x + width / 2 - text_width / 6, y + 80)
+
+        text = "You completed the " + table_type + " table!"
+        text_width = font.size(text)[0]
+        text_height = font.size(text)[1]
+        create_text(screen, font, text, c.light_blue, x + width / 2 - text_width / 3.5, y + text_height + 95)
+
+        text = "Your time: " + "{hour_nr:02d}:{min_nr:02d}:{sec_nr:02d}".format(hour_nr=int(hour),
+                                                                                min_nr=int(minute),
+                                                                                sec_nr=int(sec))
+        text_width = font.size(text)[0]
+        create_text(screen, font, text, c.light_blue, x + width / 2 - text_width / 6, y + text_height * 2 + 110)
+
+        new_button = create_button(screen, new_button_x, new_button_y, new_button_width,
+                                   new_button_height, c.light_pink, c.blue)
+        screen.blit(new_button_text,
+                    (new_button_x + new_button_width / 6 - 2, new_button_y + new_button_height / 6))
+
+        if new_button:
+            start.start_menu(screen, background)
+
+        no_button = create_button(screen, no_button_x, no_button_y, no_button_width,
+                                  no_button_height, c.light_pink, c.blue)
+        screen.blit(no_button_text,
+                    (no_button_x + no_button_width / 6 - 2, no_button_y + no_button_height / 6))
+
+        if no_button:
+            pygame.quit()
+            sys.exit()
+
+        quit_event()
+        pygame.display.update()
+
+
+def loosing_screen(screen, background):
+    return

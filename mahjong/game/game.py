@@ -20,15 +20,16 @@ def check_if_tile_equal(table, tile1_coord, tile2_coord):
     return False
 
 
-def update_array(table, tile1_coord, tile2_coord):
-    table[tile1_coord[2]][tile1_coord[1]][tile1_coord[0]] = '0'
-    table[tile2_coord[2]][tile2_coord[1]][tile2_coord[0]] = '0'
-    tiles_count, matches_count = calculate_tiles_and_matches(table)
-    return False, False, [-1, -1, -1], [-1, -1, -1], tiles_count, matches_count
+def update_array(table, tile1_coord, tile2_coord, value1='0', value2='0'):
+    table[tile1_coord[2]][tile1_coord[1]][tile1_coord[0]] = value1
+    table[tile2_coord[2]][tile2_coord[1]][tile2_coord[0]] = value2
+    tiles_count, matches = calculate_tiles_and_matches(table)
+    return False, False, [-1, -1, -1], [-1, -1, -1], tiles_count, matches
 
 
 def calculate_tiles_and_matches(table):
-    matches = [0 for _ in range(42)]
+    tiles = [[] for _ in range(42)]
+    matches = []
     tiles_count = 0
     for z, layer in enumerate(table):
         for y, line in enumerate(layer):
@@ -36,9 +37,10 @@ def calculate_tiles_and_matches(table):
                 if elem != '0':
                     tiles_count += 1
                     if check_tile(table, x, y, z):
-                        matches[int(elem) - 1] += 1
-    matches_count = 0
-    for i in matches:
-        if i > 1:
-            matches_count += 1
-    return tiles_count, matches_count
+                        if len(tiles[int(elem) - 1]) == 0:
+                            tiles[int(elem) - 1] = []
+                        else:
+                            for tile in tiles[int(elem) - 1]:
+                                matches.append([(x, y, z), tile])
+                        tiles[int(elem) - 1].append((x, y, z))
+    return tiles_count, matches

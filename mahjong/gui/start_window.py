@@ -68,7 +68,7 @@ def draw_selected_square(screen, text, x, y, width, height, img):
     utils.create_text(screen, game_big_font, text, c.blue, x + width / 2 - text_width / 2, height + 265)
 
 
-def table_menu(screen, background,turtle_img, fortress_img, dragon_img):
+def table_menu(screen, background, turtle_img, fortress_img, dragon_img):
     text = game_big_font.render("Choose Table Type:", True, c.bright_pink)
     option = 0
     option1 = False
@@ -95,19 +95,22 @@ def table_menu(screen, background,turtle_img, fortress_img, dragon_img):
         if option2:
             draw_selected_square(screen, "Fortress", c.width / 17 + 270 + 70, c.height / 3, 270,
                                  c.height / 3 + 50, fortress_img)
-            option1 = draw_table_option(screen, "Turtle", c.width / 17, c.height / 3, 270, c.height / 3 + 50, turtle_img)
+            option1 = draw_table_option(screen, "Turtle", c.width / 17, c.height / 3, 270, c.height / 3 + 50,
+                                        turtle_img)
             option3 = draw_table_option(screen, "Dragon", c.width / 17 + 270 * 2 + 70 * 2, c.height / 3, 270,
                                         c.height / 3 + 50, dragon_img)
             option = 2
         if option3:
             draw_selected_square(screen, "Dragon", c.width / 17 + 270 * 2 + 70 * 2, c.height / 3, 270,
                                  c.height / 3 + 50, dragon_img)
-            option1 = draw_table_option(screen, "Turtle", c.width / 17, c.height / 3, 270, c.height / 3 + 50, turtle_img)
+            option1 = draw_table_option(screen, "Turtle", c.width / 17, c.height / 3, 270, c.height / 3 + 50,
+                                        turtle_img)
             option2 = draw_table_option(screen, "Fortress", c.width / 17 + 270 + 70, c.height / 3, 270,
                                         c.height / 3 + 50, fortress_img)
             option = 3
         if option == 0:
-            option1 = draw_table_option(screen, "Turtle", c.width / 17, c.height / 3, 270, c.height / 3 + 50, turtle_img)
+            option1 = draw_table_option(screen, "Turtle", c.width / 17, c.height / 3, 270, c.height / 3 + 50,
+                                        turtle_img)
             option2 = draw_table_option(screen, "Fortress", c.width / 17 + 270 + 70, c.height / 3, 270,
                                         c.height / 3 + 50, fortress_img)
             option3 = draw_table_option(screen, "Dragon", c.width / 17 + 270 * 2 + 70 * 2, c.height / 3, 270,
@@ -119,7 +122,7 @@ def table_menu(screen, background,turtle_img, fortress_img, dragon_img):
                     (start_button_x + start_button_width / 6 - 2, start_button_y + start_button_height / 6))
         if start_button:
             if option != 0:
-                game.game_screen(screen, background, option)
+                game.init_game(screen, background, option)
 
         utils.quit_event()
         pygame.display.update()
