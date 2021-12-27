@@ -1,3 +1,10 @@
+"""
+This file contains all constants used by all functions in the app.
+width, height : the width and height of the game screen
+white, color_light,..., dark_blue : colours used for graphics
+font_type: font of the app
+"""
+
 width = 1070
 height = 720
 

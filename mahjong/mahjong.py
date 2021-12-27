@@ -1,3 +1,9 @@
+"""
+This is the file you run to play the game.
+It initializes the game window with the chosen setting and
+calls start_menu(screen, background) function from gui.start_window to turn on the app
+"""
+
 import pygame
 import constants as c
 import gui.start_window as start
