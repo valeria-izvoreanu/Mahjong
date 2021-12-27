@@ -123,6 +123,32 @@ def table_menu(screen, background, turtle_img, fortress_img, dragon_img):
         if start_button:
             if option != 0:
                 game.init_game(screen, background, option)
+            else:
+                option_error(screen, c.width / 2 - 250, c.height / 2 - 150, 500, 300)
 
+        utils.quit_event()
+        pygame.display.update()
+
+
+def option_error(screen, x, y, width, height):
+    ok_button_text = game_big_font.render("Ok", True, c.bright_pink)
+    ok_button_width = 80
+    ok_button_height = 60
+    ok_button_x = x + width / 2-30
+    ok_button_y = y + height - 80
+
+    while True:
+        pygame.draw.rect(screen, c.bright_pink,
+                         pygame.Rect(x, y, width, height))
+        pygame.draw.rect(screen, c.blue, pygame.Rect(x, y, width, height), 3)
+        text = "Please choose a table!"
+        utils.create_text(screen, game_big_font, text, c.light_blue, x+40, y + 100)
+        ok_button = utils.create_button(screen, ok_button_x, ok_button_y, ok_button_width,
+                                        ok_button_height, c.light_pink, c.blue)
+        screen.blit(ok_button_text,
+                    (ok_button_x + ok_button_width / 6 - 2, ok_button_y + ok_button_height / 6))
+
+        if ok_button:
+            return
         utils.quit_event()
         pygame.display.update()

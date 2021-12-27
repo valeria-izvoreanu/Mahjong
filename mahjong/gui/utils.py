@@ -100,14 +100,72 @@ def quit_window(screen, font, x, y, height, width):
         pygame.display.update()
 
 
+def loosing_screen(screen, background, x, y, height, width, font):
+    new_button_text = font.render("New Game", True, c.bright_pink)
+    new_button_width = 300
+    new_button_height = 60
+    new_button_x = x + 100
+    new_button_y = y + 400
+
+    no_button_text = font.render("Exit", True, c.bright_pink)
+    no_button_width = 120
+    no_button_height = 60
+    no_button_x = x + 550
+    no_button_y = y + 400
+
+    undo_button_text = font.render("Undo last move", True, c.bright_pink)
+    undo_button_width = 450
+    undo_button_height = 60
+    undo_button_x = x + 170
+    undo_button_y = y + 300
+    while True:
+        pygame.draw.rect(screen, c.bright_pink,
+                         pygame.Rect(x, y, height, width))
+        pygame.draw.rect(screen, c.blue, pygame.Rect(x, y, height, width), 3)
+
+        text = "You lost!"
+        create_text(screen, font, text, c.light_blue, x + width / 2 + 40, y + 80)
+
+        text = "No more matches left!"
+        text_width = font.size(text)[0]
+        text_height = font.size(text)[1]
+        create_text(screen, font, text, c.light_blue, x + width / 2 - text_width / 5, y + text_height + 95)
+
+        new_button = create_button(screen, new_button_x, new_button_y, new_button_width,
+                                   new_button_height, c.light_pink, c.blue)
+        screen.blit(new_button_text,
+                    (new_button_x + new_button_width / 6 - 2, new_button_y + new_button_height / 6))
+
+        if new_button:
+            start.start_menu(screen, background)
+
+        no_button = create_button(screen, no_button_x, no_button_y, no_button_width,
+                                  no_button_height, c.light_pink, c.blue)
+        screen.blit(no_button_text,
+                    (no_button_x + no_button_width / 6 - 2, no_button_y + no_button_height / 6))
+
+        if no_button:
+            pygame.quit()
+            sys.exit()
+
+        undo_button = create_button(screen, undo_button_x, undo_button_y, undo_button_width,
+                                    undo_button_height, c.light_pink, c.blue)
+        screen.blit(undo_button_text,
+                    (undo_button_x + undo_button_width / 6 - 2, undo_button_y + undo_button_height / 6))
+
+        if undo_button:
+            return
+
+        quit_event()
+        pygame.display.update()
+
+
 def winning_screen(screen, background, time_since_fst_move, table_type, x, y, height, width, font):
     new_button_text = font.render("New Game", True, c.bright_pink)
     new_button_width = 300
     new_button_height = 60
     new_button_x = x + 100
     new_button_y = y + 400
-    # new_button_x = x+ width * 1.3 - new_button_width / 2
-    # new_button_y = y + height * 1.1 - new_button_height * 2
 
     no_button_text = font.render("Exit", True, c.bright_pink)
     no_button_width = 120
@@ -156,7 +214,3 @@ def winning_screen(screen, background, time_since_fst_move, table_type, x, y, he
 
         quit_event()
         pygame.display.update()
-
-
-def loosing_screen(screen, background):
-    return

@@ -75,7 +75,12 @@ def game_screen(screen, background, x, y, tile_width, tile_height, table_type, t
                                  c.height / 4 - 55, c.width / 1.9 + 225,
                                  c.height / 1.9 + 150, game_big_font)
         elif len(matches) == 0:
-            utils.loosing_screen(screen, background)
+            utils.loosing_screen(screen, background, c.width / 2 - (c.width / 1.9 + 225) / 2,
+                                 c.height / 4 - 55, c.width / 1.9 + 225,
+                                 c.height / 1.9 + 150, game_big_font)
+            tile1, tile2, tile1_coord, tile2_coord, tile_count, matches = undo_move(table_array, tile1, tile2,
+                                                                                    tile1_coord, tile2_coord,
+                                                                                    tile_count)
         pygame.display.update()
 
 
